@@ -1,0 +1,135 @@
+You are building an Interactive Portfolio Website with an Admin Backend (MVP).
+This project must be fully functional, visually engaging, and easy to expand in the future.
+
+Project Overview:
+
+Public-facing portfolio showcasing case studies (images, videos, text).
+
+Private admin backend to easily add/edit/delete portfolio items without touching code.
+
+Future-proofed so adding new case studies is quick and visually consistent.
+
+Technology Stack:
+
+Frontend: Next.js 14 (App Router) + Tailwind CSS + Framer Motion animations.
+
+Backend: Next.js API routes (CRUD) with Supabase/PostgreSQL for data.
+
+Auth: NextAuth.js (admin login only).
+
+Media Storage: Supabase Storage bucket (portfolio-media).
+
+Hosting: Vercel (production) + Replit for development.
+
+Public Website Features (Score Priority):
+
+Case Study Page (100) → Full project details with text, images, videos. Responsive.
+
+Interactive Case Study Grid/List (95) → Hover animations, smooth transitions.
+
+Contact Section (85) → Simple form to send messages to email/backend.
+
+About Me Page (75) → Bio, photo, and contact links.
+
+Admin Backend Features (Score Priority):
+
+Add/Edit/Delete Case Studies (100) → Title, description, tags, media uploads, WYSIWYG text.
+
+Media Upload & Management (95) → Drag-and-drop, auto-optimize images/videos.
+
+Login System (90) → Secure username/password.
+
+Preview Mode (80) → See case study before publishing.
+
+Design & UX Patterns:
+
+Separate content from presentation so styling changes don’t require content edits.
+
+Template-based case study layout for consistent design.
+
+Auto-generate responsive image sizes & thumbnails.
+
+Draft mode for unfinished case studies.
+
+Cool-tone color theme (light blues/greys) + modern sans-serif typography.
+
+Folder Structure:
+
+bash
+Copy
+Edit
+/app
+  /page.tsx                → Homepage (interactive project grid)
+  /about/page.tsx          → Bio + contact links
+  /contact/page.tsx        → Contact form (API to send email)
+  /projects/[slug]/page.tsx → Case study detail page
+  /admin/login/page.tsx    → Admin login
+  /admin/dashboard/page.tsx→ List projects with edit/delete
+  /admin/projects/new/page.tsx → New project form
+  /admin/projects/[id]/edit/page.tsx → Edit project form
+/components
+  Navbar.tsx, Footer.tsx, ProjectCard.tsx, CaseStudyForm.tsx
+/lib
+  supabaseClient.ts
+  auth.ts
+/app/api/projects/route.ts → GET (list) + POST (create)
+/app/api/projects/[id]/route.ts → GET, PUT, DELETE
+/app/api/upload/route.ts   → Upload to Supabase Storage
+Database Schema (Supabase):
+projects
+
+scss
+Copy
+Edit
+id uuid pk, title text, slug text unique,
+short_description text, full_description text,
+tags text[], media_urls text[],
+created_at timestamp default now(),
+updated_at timestamp default now()
+users
+
+pgsql
+Copy
+Edit
+id uuid pk, email text unique,
+password_hash text, role text default 'admin'
+API Requirements:
+
+/api/projects → GET (public), POST (admin only)
+
+/api/projects/:id → GET, PUT, DELETE (admin only)
+
+/api/upload → Handle file uploads to Supabase Storage
+
+/api/auth/login → Admin login via NextAuth.js
+
+Features to Implement:
+
+Homepage with Framer Motion hover animations.
+
+Case study pages with images/videos embedded.
+
+Contact form (Nodemailer → email).
+
+Admin dashboard with CRUD operations.
+
+File uploads to Supabase (signed URLs).
+
+WYSIWYG editor (TipTap) for project descriptions.
+
+All /admin routes protected by login.
+
+Sample Data:
+
+Add 3 demo projects with placeholder images from Unsplash.
+
+Demo admin account: admin@example.com / password123.
+
+Deliverable:
+
+Runnable code in Replit with this full structure.
+
+Tailwind styling applied with a cool-tone palette (blues/greys).
+
+Mobile-friendly responsive design.
+
