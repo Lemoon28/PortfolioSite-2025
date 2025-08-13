@@ -1,0 +1,61 @@
+You are building an Interactive Portfolio Website with an Admin Backend (MVP) based on the following requirements:
+
+Project Overview
+An interactive, visually engaging portfolio site with:
+
+Public-facing portfolio showcasing case studies (images, videos, text).
+
+Private admin backend to easily add/edit/delete portfolio items without touching code.
+
+Future-proofed so adding new case studies is quick and visually consistent.
+
+Technology Preferences
+Frontend: Next.js or Astro (fast, responsive), Tailwind CSS for styling, smooth animations.
+
+Backend: Option A: Custom Express/Nest.js API + PostgreSQL/Supabase. Option B: Headless CMS (Sanity, Strapi).
+
+Media Storage: Cloud-based (Supabase Storage or AWS S3).
+
+Hosting: Vercel or Netlify for frontend.
+
+Public Website Features (Score Priority)
+Case Study Page (100) → Full project details with text, images, videos. Responsive design.
+
+Interactive Case Study Grid/List (95) → Hover animations, smooth transitions.
+
+Contact Section (85) → Simple form to send messages to email or backend.
+
+About Me Page (75) → Bio, photo, and contact links.
+
+Admin Backend Features (Score Priority)
+Add/Edit/Delete Case Studies (100) → Title, description, tags, media uploads, WYSIWYG text.
+
+Media Upload & Management (95) → Drag-and-drop, auto-optimize images/videos.
+
+Login System (90) → Secure username/password.
+
+Preview Mode (80) → See case study before publishing.
+
+Design & UX Patterns
+Separate content from presentation so styling changes don’t require content edits.
+
+Template-based case study layout for consistent design.
+
+Auto-generate responsive image sizes and thumbnails.
+
+Draft mode for unfinished case studies.
+
+Usage Flow
+Public user: Visit → Browse projects → Click → Read case study → Contact.
+
+Admin user: Login → Create/Edit case study → Upload media → Preview → Publish.
+
+Your task:
+
+Scaffold the frontend + backend in the same Replit project (monorepo or separate apps).
+
+Build MVP features in score order, starting from highest priority.
+
+Ensure responsive design and smooth animations for the portfolio grid and transitions.
+
+Add sample data and media to demonstrate functionality.
