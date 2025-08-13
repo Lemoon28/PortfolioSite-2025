@@ -7,6 +7,7 @@ This is a full-stack interactive portfolio website with a secure admin backend. 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Typography: Inter font family throughout the application.
 
 ## System Architecture
 
