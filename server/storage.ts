@@ -1,8 +1,4 @@
 import {
-  users,
-  projects,
-  media,
-  contactSubmissions,
   type User,
   type UpsertUser,
   type Project,
@@ -12,8 +8,6 @@ import {
   type ContactSubmission,
   type InsertContact,
 } from "@shared/schema";
-import { db } from "./db";
-import { eq, desc, and, ilike } from "drizzle-orm";
 
 export interface IStorage {
   // User operations - required for Replit Auth
@@ -40,99 +34,146 @@ export interface IStorage {
   updateContactStatus(id: number, status: string): Promise<void>;
 }
 
-export class DatabaseStorage implements IStorage {
+export class MemStorage implements IStorage {
+  private users: Map<string, User> = new Map();
+  private projects: Map<number, Project> = new Map();
+  private media: Map<number, Media> = new Map();
+  private contacts: Map<number, ContactSubmission> = new Map();
+  private nextProjectId = 1;
+  private nextMediaId = 1;
+  private nextContactId = 1;
+
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    return this.users.get(id);
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+    if (!userData.id) {
+      throw new Error("User ID is required");
+    }
+    const existingUser = this.users.get(userData.id);
+    const user: User = {
+      id: userData.id,
+      email: userData.email || null,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      profileImageUrl: userData.profileImageUrl || null,
+      createdAt: existingUser?.createdAt || new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(userData.id, user);
     return user;
   }
 
   // Project operations
   async getProjects(status?: string): Promise<Project[]> {
-    const query = db.select().from(projects);
-    
-    if (status) {
-      return await query.where(eq(projects.status, status)).orderBy(desc(projects.createdAt));
-    }
-    
-    return await query.orderBy(desc(projects.createdAt));
+    const allProjects = Array.from(this.projects.values());
+    const filtered = status ? allProjects.filter(p => p.status === status) : allProjects;
+    return filtered.sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
   }
 
   async getProject(id: number): Promise<Project | undefined> {
-    const [project] = await db.select().from(projects).where(eq(projects.id, id));
-    return project;
+    return this.projects.get(id);
   }
 
   async getProjectBySlug(slug: string): Promise<Project | undefined> {
-    const [project] = await db.select().from(projects).where(eq(projects.slug, slug));
+    return Array.from(this.projects.values()).find(p => p.slug === slug);
+  }
+
+  async createProject(projectData: InsertProject): Promise<Project> {
+    const id = this.nextProjectId++;
+    const project: Project = {
+      id,
+      title: projectData.title,
+      slug: projectData.slug,
+      description: projectData.description,
+      content: projectData.content,
+      featuredImage: projectData.featuredImage || null,
+      category: projectData.category,
+      tags: projectData.tags || null,
+      status: projectData.status || "draft",
+      authorId: projectData.authorId || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.projects.set(id, project);
     return project;
   }
 
-  async createProject(project: InsertProject): Promise<Project> {
-    const [newProject] = await db.insert(projects).values(project).returning();
-    return newProject;
-  }
-
-  async updateProject(id: number, project: Partial<InsertProject>): Promise<Project> {
-    const [updatedProject] = await db
-      .update(projects)
-      .set({ ...project, updatedAt: new Date() })
-      .where(eq(projects.id, id))
-      .returning();
-    return updatedProject;
+  async updateProject(id: number, projectData: Partial<InsertProject>): Promise<Project> {
+    const existing = this.projects.get(id);
+    if (!existing) {
+      throw new Error(`Project with id ${id} not found`);
+    }
+    const updated: Project = {
+      ...existing,
+      ...projectData,
+      updatedAt: new Date(),
+    };
+    this.projects.set(id, updated);
+    return updated;
   }
 
   async deleteProject(id: number): Promise<void> {
-    await db.delete(projects).where(eq(projects.id, id));
+    this.projects.delete(id);
   }
 
   // Media operations
   async getMedia(): Promise<Media[]> {
-    return await db.select().from(media).orderBy(desc(media.createdAt));
+    const allMedia = Array.from(this.media.values());
+    return allMedia.sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
   }
 
   async getMediaById(id: number): Promise<Media | undefined> {
-    const [mediaItem] = await db.select().from(media).where(eq(media.id, id));
-    return mediaItem;
+    return this.media.get(id);
   }
 
   async createMedia(mediaData: InsertMedia): Promise<Media> {
-    const [newMedia] = await db.insert(media).values(mediaData).returning();
-    return newMedia;
+    const id = this.nextMediaId++;
+    const media: Media = {
+      id,
+      filename: mediaData.filename,
+      originalName: mediaData.originalName,
+      mimeType: mediaData.mimeType,
+      size: mediaData.size,
+      url: mediaData.url,
+      altText: mediaData.altText || null,
+      uploadedBy: mediaData.uploadedBy || null,
+      createdAt: new Date(),
+    };
+    this.media.set(id, media);
+    return media;
   }
 
   async deleteMedia(id: number): Promise<void> {
-    await db.delete(media).where(eq(media.id, id));
+    this.media.delete(id);
   }
 
   // Contact operations
   async getContacts(): Promise<ContactSubmission[]> {
-    return await db.select().from(contactSubmissions).orderBy(desc(contactSubmissions.createdAt));
+    const allContacts = Array.from(this.contacts.values());
+    return allContacts.sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
   }
 
-  async createContact(contact: InsertContact): Promise<ContactSubmission> {
-    const [newContact] = await db.insert(contactSubmissions).values(contact).returning();
-    return newContact;
+  async createContact(contactData: InsertContact): Promise<ContactSubmission> {
+    const id = this.nextContactId++;
+    const contact: ContactSubmission = {
+      id,
+      ...contactData,
+      status: "new",
+      createdAt: new Date(),
+    };
+    this.contacts.set(id, contact);
+    return contact;
   }
 
   async updateContactStatus(id: number, status: string): Promise<void> {
-    await db.update(contactSubmissions).set({ status }).where(eq(contactSubmissions.id, id));
+    const existing = this.contacts.get(id);
+    if (existing) {
+      this.contacts.set(id, { ...existing, status });
+    }
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new MemStorage();
