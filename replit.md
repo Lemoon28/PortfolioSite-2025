@@ -21,17 +21,17 @@ Typography: Inter font family throughout the application.
 
 ### Backend Architecture
 - **Server**: Express.js with TypeScript for API endpoints and middleware
-- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
+- **Storage**: In-memory storage with type-safe operations for optimal Replit compatibility
 - **Authentication**: Replit Auth integration with session-based authentication
 - **File Handling**: Multer middleware for file uploads with validation
 - **Development**: Vite for hot module replacement and build optimization
 
-### Database Design
-- **Users Table**: Stores authenticated user information for admin access
-- **Projects Table**: Portfolio items with title, description, content, media, and status
-- **Media Table**: File management with metadata and references
+### Storage Design
+- **In-Memory Storage**: Fast, reliable storage for development and demonstration
+- **Users Collection**: Stores authenticated user information for admin access
+- **Projects Collection**: Portfolio items with title, description, content, media, and status
+- **Media Collection**: File management with metadata and references
 - **Contact Submissions**: Form submissions from public visitors
-- **Sessions Table**: Secure session storage for authentication
 
 ### Authentication & Authorization
 - **Replit Auth**: OAuth-based authentication for secure admin access
