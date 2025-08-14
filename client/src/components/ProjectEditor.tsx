@@ -19,6 +19,10 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 
 const projectFormSchema = insertProjectSchema.extend({
   tags: z.string().optional(),
+}).omit({ 
+  authorId: true,
+  createdAt: true, 
+  updatedAt: true 
 });
 
 type ProjectForm = z.infer<typeof projectFormSchema>;
@@ -49,15 +53,22 @@ export default function ProjectEditor({ project, onClose }: ProjectEditorProps) 
 
   const mutation = useMutation({
     mutationFn: async (data: ProjectForm) => {
+      console.log("=== MUTATION FUNCTION ===");
+      console.log("Data received:", data);
+      
       const projectData = {
         ...data,
         content,
         tags,
       };
-
+      
+      console.log("Final project data:", projectData);
+      
       if (project) {
+        console.log(`Making PUT request to /api/admin/projects/${project.id}`);
         return await apiRequest("PUT", `/api/admin/projects/${project.id}`, projectData);
       } else {
+        console.log("Making POST request to /api/admin/projects");
         return await apiRequest("POST", "/api/admin/projects", projectData);
       }
     },
@@ -71,6 +82,10 @@ export default function ProjectEditor({ project, onClose }: ProjectEditorProps) 
       onClose();
     },
     onError: (error) => {
+      console.log("=== MUTATION ERROR ===");
+      console.log("Error details:", error);
+      console.log("Error message:", (error as Error).message);
+      
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
@@ -102,9 +117,15 @@ export default function ProjectEditor({ project, onClose }: ProjectEditorProps) 
   };
 
   const onSubmit = (data: ProjectForm) => {
+    console.log("=== FORM SUBMISSION ===");
     console.log("Form submitted with data:", data);
     console.log("Form errors:", form.formState.errors);
     console.log("Form is valid:", form.formState.isValid);
+    console.log("Current content:", content);
+    console.log("Current tags:", tags);
+    console.log("Project being edited:", project);
+    console.log("Mutation pending:", mutation.isPending);
+    
     mutation.mutate(data);
   };
 

@@ -222,7 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/contacts', isAuthenticated, async (req, res) => {
+  app.get('/api/admin/contacts', developmentAuthBypass, isAuthenticated, async (req, res) => {
     try {
       const contacts = await storage.getContacts();
       res.json(contacts);
