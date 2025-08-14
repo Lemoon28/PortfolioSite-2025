@@ -22,11 +22,12 @@ export default function Home() {
       {/* Hero Section */}
       <section className="pt-24 pb-16 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex justify-between items-start">
+          <div className="flex justify-center lg:justify-start items-start">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="text-center lg:text-left"
             >
               <h1 className="text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
                 Welcome Back!
@@ -34,7 +35,7 @@ export default function Home() {
               <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
                 Manage your portfolio and create amazing digital experiences.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button asChild size="lg" className="text-lg px-8 py-6">
                   <a href="/admin">
                     <Plus className="w-5 h-5 mr-2" />

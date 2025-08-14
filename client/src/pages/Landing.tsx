@@ -61,6 +61,7 @@ export default function Landing() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="text-center lg:text-left"
             >
               <h1 className="text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
                 Creative <span className="text-primary">Digital</span> Experiences
@@ -68,7 +69,7 @@ export default function Landing() {
               <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
                 I craft user-friendly and visually engaging digital solutions that combine aesthetic excellence with functional design principles.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button asChild size="lg" className="text-lg px-8 py-6">
                   <a href="#projects">View Projects</a>
                 </Button>
