@@ -1,0 +1,19 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+  "dev": "TINA_PUBLIC_IS_LOCAL=true tinacms dev -c \"vite\"",
+  "build": "tinacms build && vite build",
+  "preview": "vite preview"
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@tinacms/cli": "^1.10.2",
+    "@types/node": "^24.2.1",
+    "tinacms": "^2.8.2"
+  }
+}
