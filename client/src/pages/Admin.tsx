@@ -86,6 +86,7 @@ export default function Admin() {
   };
 
   const handleNewProject = () => {
+    console.log("handleNewProject called");
     setEditingProject(null);
     setShowProjectEditor(true);
   };

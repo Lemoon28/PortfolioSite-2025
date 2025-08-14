@@ -102,6 +102,9 @@ export default function ProjectEditor({ project, onClose }: ProjectEditorProps) 
   };
 
   const onSubmit = (data: ProjectForm) => {
+    console.log("Form submitted with data:", data);
+    console.log("Form errors:", form.formState.errors);
+    console.log("Form is valid:", form.formState.isValid);
     mutation.mutate(data);
   };
 
@@ -341,6 +344,15 @@ export default function ProjectEditor({ project, onClose }: ProjectEditorProps) 
                     type="submit"
                     disabled={mutation.isPending}
                     className="min-w-[100px]"
+                    onClick={(e) => {
+                      console.log("Save button clicked");
+                      console.log("Form valid:", form.formState.isValid);
+                      console.log("Form errors:", form.formState.errors);
+                      if (!form.formState.isValid) {
+                        e.preventDefault();
+                        console.log("Form validation failed, preventing submission");
+                      }
+                    }}
                   >
                     {mutation.isPending ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
