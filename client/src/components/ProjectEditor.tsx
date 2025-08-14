@@ -71,13 +71,16 @@ export default function ProjectEditor({ project, onClose }: ProjectEditorProps) 
         return await apiRequest("POST", "/api/admin/projects", projectData);
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("=== MUTATION SUCCESS ===");
+      console.log("Success data:", data);
       queryClient.invalidateQueries({ queryKey: ["/api/admin/projects"] });
       queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
       toast({
         title: project ? "Project updated" : "Project created",
         description: `The project has been successfully ${project ? "updated" : "created"}.`,
       });
+      console.log("Closing modal...");
       onClose();
     },
     onError: (error) => {
@@ -361,17 +364,20 @@ export default function ProjectEditor({ project, onClose }: ProjectEditorProps) 
                     Cancel
                   </Button>
                   <Button
-                    type="submit"
+                    type="button"
                     disabled={mutation.isPending}
                     className="min-w-[100px]"
-                    onClick={(e) => {
-                      console.log("Save button clicked");
+                    onClick={() => {
+                      console.log("=== BUTTON CLICKED ===");
+                      console.log("Form values:", form.getValues());
                       console.log("Form valid:", form.formState.isValid);
                       console.log("Form errors:", form.formState.errors);
-                      if (!form.formState.isValid) {
-                        e.preventDefault();
-                        console.log("Form validation failed, preventing submission");
-                      }
+                      console.log("Mutation pending:", mutation.isPending);
+                      
+                      // Force form submission manually
+                      const values = form.getValues();
+                      console.log("Manually triggering form submission with:", values);
+                      onSubmit(values);
                     }}
                   >
                     {mutation.isPending ? (
