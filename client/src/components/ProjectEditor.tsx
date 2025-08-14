@@ -17,12 +17,10 @@ import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
-const projectFormSchema = insertProjectSchema.extend({
+const projectFormSchema = insertProjectSchema.omit({ 
+  authorId: true 
+}).extend({
   tags: z.string().optional(),
-}).omit({ 
-  authorId: true,
-  createdAt: true, 
-  updatedAt: true 
 });
 
 type ProjectForm = z.infer<typeof projectFormSchema>;
@@ -43,6 +41,7 @@ export default function ProjectEditor({ project, onClose }: ProjectEditorProps) 
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
       title: project?.title || "",
+      slug: project?.slug || "",
       description: project?.description || "",
       category: project?.category || "",
       content: project?.content || "",
