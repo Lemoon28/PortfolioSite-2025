@@ -15,12 +15,24 @@ const developmentAuthBypass: RequestHandler = (req, res, next) => {
     (req as any).user = {
       claims: {
         sub: 'mock-user-123',
-        email: 'dev@example.com'
+        email: 'dev@example.com',
+        first_name: 'Developer',
+        last_name: 'User'
       }
     };
+    // Mock isAuthenticated function
+    (req as any).isAuthenticated = () => true;
     return next();
   }
   return next();
+};
+
+// Helper function for admin route authentication
+const adminAuth: RequestHandler = (req, res, next) => {
+  if (process.env.NODE_ENV === 'development') {
+    return next(); // Skip authentication in development
+  }
+  return isAuthenticated(req, res, next);
 };
 
 const upload = multer({
@@ -53,10 +65,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/uploads', express.static('uploads'));
 
   // Auth routes
-  app.get('/api/auth/user', developmentAuthBypass, isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', developmentAuthBypass, async (req: any, res) => {
+    // Skip isAuthenticated middleware in development for testing
+    if (process.env.NODE_ENV !== 'development') {
+      return isAuthenticated(req, res, () => {});
+    }
     try {
       const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      let user = await storage.getUser(userId);
+      
+      // Create user if it doesn't exist (for development)
+      if (!user && process.env.NODE_ENV === 'development') {
+        user = await storage.upsertUser({
+          id: userId,
+          email: req.user.claims.email,
+          firstName: req.user.claims.first_name || 'Developer',
+          lastName: req.user.claims.last_name || 'User',
+          profileImageUrl: null,
+        });
+      }
+      
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -92,7 +120,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin project routes
-  app.get('/api/admin/projects', developmentAuthBypass, isAuthenticated, async (req, res) => {
+  app.get('/api/admin/projects', developmentAuthBypass, async (req, res) => {
+    // Skip isAuthenticated middleware in development for testing
+    if (process.env.NODE_ENV !== 'development') {
+      return isAuthenticated(req, res, () => {});
+    }
     try {
       const projects = await storage.getProjects();
       res.json(projects);
@@ -102,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/projects/:id', developmentAuthBypass, isAuthenticated, async (req, res) => {
+  app.get('/api/admin/projects/:id', developmentAuthBypass, adminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const project = await storage.getProject(id);
@@ -118,7 +150,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/projects', developmentAuthBypass, isAuthenticated, async (req: any, res) => {
+  app.post('/api/admin/projects', developmentAuthBypass, adminAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const validatedData = insertProjectSchema.parse({
@@ -135,7 +167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/projects/:id', developmentAuthBypass, isAuthenticated, async (req, res) => {
+  app.put('/api/admin/projects/:id', developmentAuthBypass, adminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertProjectSchema.partial().parse(req.body);
@@ -152,7 +184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/projects/:id', developmentAuthBypass, isAuthenticated, async (req, res) => {
+  app.delete('/api/admin/projects/:id', developmentAuthBypass, adminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteProject(id);
@@ -164,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Media routes
-  app.get('/api/admin/media', developmentAuthBypass, isAuthenticated, async (req, res) => {
+  app.get('/api/admin/media', developmentAuthBypass, adminAuth, async (req, res) => {
     try {
       const mediaFiles = await storage.getMedia();
       res.json(mediaFiles);
@@ -174,7 +206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/media', developmentAuthBypass, isAuthenticated, upload.single('file'), async (req: any, res) => {
+  app.post('/api/admin/media', developmentAuthBypass, adminAuth, upload.single('file'), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -199,7 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/media/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/admin/media/:id', developmentAuthBypass, adminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteMedia(id);
@@ -222,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/contacts', developmentAuthBypass, isAuthenticated, async (req, res) => {
+  app.get('/api/admin/contacts', developmentAuthBypass, adminAuth, async (req, res) => {
     try {
       const contacts = await storage.getContacts();
       res.json(contacts);
