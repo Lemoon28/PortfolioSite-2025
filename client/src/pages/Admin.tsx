@@ -21,7 +21,7 @@ export default function Admin() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, logout } = useAuth();
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -125,7 +125,7 @@ export default function Admin() {
                   View Site
                 </a>
               </Button>
-              <Button variant="outline" onClick={() => window.location.href = "/api/logout"}>
+              <Button variant="outline" onClick={logout}>
                 Logout
               </Button>
             </div>

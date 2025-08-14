@@ -4,6 +4,7 @@ import Navigation from "@/components/Navigation";
 import ProjectCard from "@/components/ProjectCard";
 import { Button } from "@/components/ui/button";
 import { Plus, Settings, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import type { Project } from "@shared/schema";
 
 export default function Home() {
@@ -11,9 +12,7 @@ export default function Home() {
     queryKey: ["/api/projects"],
   });
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
-  };
+  const { logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,7 +41,7 @@ export default function Home() {
                     Manage Projects
                   </a>
                 </Button>
-                <Button variant="outline" size="lg" className="text-lg px-8 py-6" onClick={handleLogout}>
+                <Button variant="outline" size="lg" className="text-lg px-8 py-6" onClick={logout}>
                   <LogOut className="w-5 h-5 mr-2" />
                   Logout
                 </Button>
