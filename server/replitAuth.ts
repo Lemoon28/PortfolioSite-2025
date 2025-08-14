@@ -99,6 +99,13 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
+    // In development, simply clear the logged out flag and redirect
+    if (process.env.NODE_ENV === 'development') {
+      (req.session as any).loggedOut = false;
+      res.redirect('/admin');
+      return;
+    }
+    
     passport.authenticate(`replitauth:${req.hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
@@ -113,12 +120,31 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/logout", (req, res) => {
+    console.log('Logout endpoint hit');
+    
+    // In development, handle logout differently
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Development logout - before:', req.session);
+      (req.session as any).loggedOut = true;
+      console.log('Development logout - after setting flag:', req.session);
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+        } else {
+          console.log('Session saved successfully');
+        }
+        res.redirect('/');
+      });
+      return;
+    }
+    
+    // Production logout flow
     req.logout((err) => {
       if (err) {
         console.error("Logout error:", err);
       }
       
-      // Clear the session completely
+      // Clear the session completely for production
       req.session.destroy((err) => {
         if (err) {
           console.error("Session destroy error:", err);
@@ -126,12 +152,6 @@ export async function setupAuth(app: Express) {
         
         // Clear the session cookie
         res.clearCookie('connect.sid');
-        
-        // In development, just redirect to home page
-        if (process.env.NODE_ENV === 'development') {
-          res.redirect('/');
-          return;
-        }
         
         // In production, use proper OIDC logout
         res.redirect(

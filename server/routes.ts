@@ -11,17 +11,28 @@ import { randomUUID } from "crypto";
 // Development middleware to bypass auth issues
 const developmentAuthBypass: RequestHandler = (req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
-    // Mock user for development
-    (req as any).user = {
-      claims: {
-        sub: 'mock-user-123',
-        email: 'dev@example.com',
-        first_name: 'Developer',
-        last_name: 'User'
-      }
-    };
-    // Mock isAuthenticated function
-    (req as any).isAuthenticated = () => true;
+    // Check if user has explicitly logged out
+    const session = (req as any).session;
+    console.log('Development bypass - session:', session ? { loggedOut: session.loggedOut, id: session.id } : 'no session');
+    
+    const isLoggedOut = session && session.loggedOut === true;
+    
+    if (!isLoggedOut) {
+      // Mock user for development only if not logged out
+      (req as any).user = {
+        claims: {
+          sub: 'mock-user-123',
+          email: 'dev@example.com',
+          first_name: 'Developer',
+          last_name: 'User'
+        }
+      };
+      // Mock isAuthenticated function
+      (req as any).isAuthenticated = () => true;
+      console.log('Development bypass - user mocked');
+    } else {
+      console.log('Development bypass - user logged out, not mocking user');
+    }
     return next();
   }
   return next();
@@ -30,7 +41,14 @@ const developmentAuthBypass: RequestHandler = (req, res, next) => {
 // Helper function for admin route authentication
 const adminAuth: RequestHandler = (req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
-    return next(); // Skip authentication in development
+    // Check if user has logged out in development
+    const session = (req as any).session;
+    const isLoggedOut = !session || session.loggedOut === true;
+    
+    if (isLoggedOut || !(req as any).user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    return next(); // Skip authentication check if user exists and not logged out
   }
   return isAuthenticated(req, res, next);
 };
@@ -66,9 +84,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth routes
   app.get('/api/auth/user', developmentAuthBypass, async (req: any, res) => {
-    // Skip isAuthenticated middleware in development for testing
-    if (process.env.NODE_ENV !== 'development') {
-      return isAuthenticated(req, res, () => {});
+    // Check authentication in all environments
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authenticated" });
     }
     try {
       const userId = req.user.claims.sub;
