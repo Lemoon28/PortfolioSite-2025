@@ -219,7 +219,7 @@ export default function Admin() {
                           {project.description}
                         </p>
                         <p className="text-xs text-muted-foreground mb-4">
-                          Updated {formatDistance(new Date(project.updatedAt), new Date(), { addSuffix: true })}
+                          Updated {project.updatedAt ? formatDistance(new Date(project.updatedAt), new Date(), { addSuffix: true }) : 'Never'}
                         </p>
                         <div className="flex justify-between">
                           <div className="flex space-x-2">
@@ -307,7 +307,7 @@ export default function Admin() {
                               {contact.status}
                             </Badge>
                             <p className="text-xs text-muted-foreground">
-                              {formatDistance(new Date(contact.createdAt), new Date(), { addSuffix: true })}
+                              {contact.createdAt ? formatDistance(new Date(contact.createdAt), new Date(), { addSuffix: true }) : 'Unknown'}
                             </p>
                           </div>
                         </div>
