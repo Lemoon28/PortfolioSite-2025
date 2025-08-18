@@ -1,0 +1,26 @@
+#!/bin/bash
+# Proxy script to redirect Next.js commands to the correct Express + Vite startup
+# This allows the workflow to work without modifying package.json
+
+cd "$(dirname "$0")"
+
+case "$1" in
+  "dev")
+    echo "Starting Express + Vite development server..."
+    export PORT=${PORT:-5000}
+    exec tsx server/index.ts
+    ;;
+  "build")
+    echo "Building with Vite..."
+    exec vite build
+    ;;
+  "start")
+    echo "Starting Express + Vite production server..."
+    export PORT=${PORT:-5000}
+    exec tsx server/index.ts
+    ;;
+  *)
+    echo "Usage: next {dev|build|start}"
+    exit 1
+    ;;
+esac

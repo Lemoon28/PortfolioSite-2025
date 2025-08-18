@@ -4,10 +4,10 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-  "dev": "next dev -p $PORT",
-  "build": "next build",
-  "start": "next start -p $PORT"
-},
+    "dev": "next dev -p $PORT",
+    "build": "next build",
+    "start": "next start -p $PORT"
+  },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
