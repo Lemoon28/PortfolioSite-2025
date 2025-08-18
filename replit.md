@@ -82,6 +82,24 @@ Typography: Inter font family throughout the application.
 - **ESBuild**: Fast bundling for production builds
 - **Drizzle Kit**: Database migrations and schema management
 
+## Known Issues & Solutions
+
+### Package.json Script Configuration (Fixed - Aug 18, 2025)
+**Issue**: The package.json contains incorrect Next.js scripts (`next dev -p $PORT`) instead of the correct Express/Vite setup commands.
+
+**Root Cause**: Project was likely initialized with Next.js template but converted to Express + Vite architecture.
+
+**Solution**: Created `start.sh` script as workaround since package.json cannot be directly edited:
+- `./start.sh` - Runs the correct command: `tsx server/index.ts`
+- The Express server automatically handles Vite development mode setup
+- Application runs successfully on port 5000 with full functionality
+
+**Technical Details**: 
+- Server entry point: `server/index.ts` 
+- Correct command: `tsx server/index.ts`
+- Development setup includes Vite HMR and React refresh
+- All API endpoints and frontend routing working correctly
+
 ### Form & Validation
 - **Zod**: Runtime type validation for forms and API
 - **React Hook Form**: Performance-optimized form handling
